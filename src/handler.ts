@@ -9,27 +9,36 @@ const b64encode = (str: string) => {
 }
 export const handler = (event: IHandlerArgs, bucketName: string) => {
     const videoUrl = event.url;
-    ytdl.getBasicInfo(videoUrl)
-    .then((info) => {
-        const body = ytdl(event.url).pipe(zlib.createGzip());
-        const client = new aws.S3({
-            region: "us-east-1",
-        })
-        client.upload({
-            Bucket: bucketName,
-            Key: `${b64encode(videoUrl)}.gz`,
-            Body: body,
-            Metadata: {
-                title: b64encode(info.title || ""),
-                description: b64encode(info.description || ""),
-                thumbnail_url: b64encode(info.thumbnail_url || ""),
-            }
-        })
-        .on('httpUploadProgress', (evt) => { 
-            console.log(evt);
-        })
-        .send((err: any, data: any) => {
-            console.log(err, data)
+    return new Promise((resolve, reject) => {
+        ytdl.getBasicInfo(videoUrl)
+        .then((info) => {
+            const body = ytdl(event.url).pipe(zlib.createGzip());
+            const client = new aws.S3({
+                region: "us-east-1",
+            })
+            client.upload({
+                Bucket: bucketName,
+                Key: `${b64encode(videoUrl)}.gz`,
+                Body: body,
+            })
+            .on('httpUploadProgress', (evt) => { 
+                console.log(evt);
+            })
+            .send((err: any, data: any) => {
+                console.log(err, data)
+            });
+            client.upload({
+                Bucket: bucketName,
+                Key: `${b64encode(videoUrl)}.metadata`,
+                Body: JSON.stringify(info),
+            })
+            .on('httpUploadProgress', (evt) => { 
+                console.log(evt);
+            })
+            .send((err: any, data: any) => {
+                console.log(err, data)
+            });
+            resolve();
         });
     });
 }
