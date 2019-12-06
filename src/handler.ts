@@ -5,7 +5,7 @@ import * as zlib from 'zlib';
 
 
 const b64encode = (str: string) => {
-    return Buffer.from(str).toString('base64');
+    return Buffer.from(str).toString('base64').replace(/\//g, '-');
 }
 export const handler = (event: IHandlerArgs, bucketName: string) => {
     const videoUrl = event.url;
@@ -20,9 +20,9 @@ export const handler = (event: IHandlerArgs, bucketName: string) => {
             Key: `${b64encode(videoUrl)}.gz`,
             Body: body,
             Metadata: {
-                title: b64encode(info.title),
-                description: b64encode(info.description),
-                thumbnail_url: b64encode(info.thumbnail_url),
+                title: b64encode(info.title || ""),
+                description: b64encode(info.description || ""),
+                thumbnail_url: b64encode(info.thumbnail_url || ""),
             }
         })
         .on('httpUploadProgress', (evt) => { 
