@@ -7,7 +7,7 @@
         "@pulumi/aws": "^1.0.0",
         "@pulumi/awsx": "^0.18.10",
         "@pulumi/pulumi": "^1.0.0",
-        "aws-sdk": "^2.585.0",
+        "aws-sdk": "^2.814.0",
         "typescript": "^3.7.3",
         "ytdl-core": "^1.0.3"
     }
